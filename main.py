@@ -1,20 +1,26 @@
 import os
-from fastapi import FastAPI, File, UploadFile
+import uuid
+from flask import Flask, request, send_file
 from io import BytesIO
 from rembg import remove
 from PIL import Image
-from fastapi.responses import StreamingResponse
-import uuid
-import uvicorn
 
-app = FastAPI()
+app = Flask(__name__)
+@app.route("/remove-background/", methods=["POST"])
+def remove_background():
+    # Check if the request contains a file
+    if "file" not in request.files:
+        print("No file part")  # Add print for debugging
+        return "No file part", 400
 
-@app.post("/remove-background/")
-async def remove_background(file: UploadFile = File(...)):
-    print(f"Received file: {file.filename}")  # Debugging line
+    file = request.files["file"]
+    
+    if file.filename == "":
+        print("No selected file")  # Add print for debugging
+        return "No selected file", 400
 
     # Read the uploaded image file
-    image_bytes = await file.read()
+    image_bytes = file.read()
 
     # Remove the background using rembg
     result = remove(image_bytes)
@@ -27,14 +33,14 @@ async def remove_background(file: UploadFile = File(...)):
     image.save(output, format="PNG")
     output.seek(0)
 
+    # Generate a unique filename for the result
+    filename = f"{uuid.uuid4()}.png"
+
     # Return the image as a stream for download
-    return StreamingResponse(
-        output,
-        media_type="image/png",
-        headers={"Content-Disposition": f"attachment; filename={uuid.uuid4()}.png"}
-    )
+    return send_file(output, as_attachment=True, download_name=filename, mimetype="image/png")
+
 
 if __name__ == "__main__":
-    # Bind to the PORT environment variable or default to 8000
-    port = int(os.environ.get("PORT",8080))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    # Bind to the PORT environment variable or default to 5000
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
