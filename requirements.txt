@@ -1,2 +1,4 @@
 rembg==2.0.56
 streamlit==1.33.0
+fastapi==0.95.0
+uvicorn==0.22.0
