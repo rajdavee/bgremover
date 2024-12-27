@@ -10,7 +10,7 @@ app = Flask(__name__)
 def remove_background():
     # Check if the request contains a file
     if "file" not in request.files:
-        print("hiii")  # Add print for debugging
+        print("hello")  # Add print for debugging
         return "No file part", 400
 
     file = request.files["file"]
