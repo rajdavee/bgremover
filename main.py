@@ -11,7 +11,7 @@ def remove_background():
     # Check if the request contains a file
     if "file" not in request.files:
         print("No file part")  # Add print for debugging
-        return "No file part", 400
+        return "hii", 400
 
     file = request.files["file"]
     
